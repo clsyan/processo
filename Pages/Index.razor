@@ -45,6 +45,7 @@
     Pessoa Pessoa = new Pessoa(); 
     protected override async Task OnInitializedAsync()
     {
+        if(await localStorage.GetItemAsync<List<Pessoa>>("Pessoas") == null) await localStorage.SetItemAsync("Pessoas", new List<Pessoa>());
         Pessoas = await localStorage.GetItemAsync<List<Pessoa>>("Pessoas");
     }
 
