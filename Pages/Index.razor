@@ -1,0 +1,67 @@
+@page "/pessoas"
+@using System.Text.Json
+@using System.Text.RegularExpressions
+
+<EditForm OnSubmit=@Adicionar Model=@Pessoa>
+    <InputText @bind-Value=Pessoa.Nome/>
+    <Mascara @bind-Value=Pessoa.Cpf data-mask="000.000.000-00" />
+    <InputSelect @bind-Value=Pessoa.Empresa>
+        @foreach (var empresa in Enum.GetValues(typeof(Empresa)))
+        {
+            <option value="@empresa">@empresa</option>
+        }
+    </InputSelect>
+    <input type="submit" class="btn btn-primary" value="Save"/>
+</EditForm>
+<div class="container">
+    <h3 class="p-3">Pessoas</h3>
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Cpf</th>
+                <th>Empresa</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var pessoa in Pessoas)
+            {
+                <tr>
+                    <td>@pessoa.Nome</td>
+                    <td>@pessoa.Cpf</td>
+                    <td>@pessoa.Empresa</td>
+                    <td><button @onclick="() => Deletar(pessoa)">X</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@code {
+
+    List<Pessoa> Pessoas = new List<Pessoa>(); 
+    
+    Pessoa Pessoa = new Pessoa(); 
+    protected override async Task OnInitializedAsync()
+    {
+        Pessoas = await localStorage.GetItemAsync<List<Pessoa>>("Pessoas");
+    }
+
+    
+    async void Deletar(Pessoa pessoa) {
+        Pessoas.Remove(pessoa);
+        await localStorage.SetItemAsync("Pessoas", Pessoas);
+    }
+    async void Adicionar()
+    { 
+        Pessoa p = new Pessoa() {
+            Nome = Pessoa.Nome,
+            Cpf = Pessoa.Cpf,
+            Empresa = Pessoa.Empresa
+        };
+        Pessoas.Add(p);
+        await localStorage.SetItemAsync("Pessoas", Pessoas);
+
+    }
+}
